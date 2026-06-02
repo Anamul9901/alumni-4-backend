@@ -137,8 +137,15 @@ const getMyData = async () => {
     return result;
 };
 
-const getAllUser = async () => {
-    const result = await User.find().sort({ createdAt: -1 });
+const getAllUser = async (query?: Record<string, any>) => {
+    const filterQuery: Record<string, any> = { isDeleted: { $ne: true } };
+    if (query?.searchTerm) {
+        filterQuery.$or = [
+            { name: { $regex: query.searchTerm, $options: 'i' } },
+            { email: { $regex: query.searchTerm, $options: 'i' } },
+        ];
+    }
+    const result = await User.find(filterQuery).sort({ createdAt: -1 });
     return result;
 }
 

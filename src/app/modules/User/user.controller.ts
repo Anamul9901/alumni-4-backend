@@ -70,7 +70,7 @@ const getMyData = catchAsync(async (req, res) => {
 });
 
 const getAllUser = catchAsync(async (req, res) => {
-    const result = await UserService.getAllUser();
+    const result = await UserService.getAllUser(req.query);
     if (!result) {
         sendResponse(res, {
             statusCode: httpStatus.NOT_FOUND,
