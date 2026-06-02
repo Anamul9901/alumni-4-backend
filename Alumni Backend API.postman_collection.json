@@ -1,0 +1,853 @@
+{
+  "info": {
+    "_postman_id": "5ac605d1-7652-40f9-9957-a3abe9232a41",
+    "name": "Alumni Backend API",
+    "description": "Postman collection for Alumni Backend project. \n- Includes auto-token setting on Login/Signup.\n- Covers User, Staff, Service, Appointment, and ActivityLog modules.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30939458"
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.token) {",
+                  "        pm.environment.set(\"accessToken\", jsonData.data.token);",
+                  "    } else if (jsonData.token) {",
+                  "        pm.environment.set(\"accessToken\", jsonData.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test2@example.com\",\n    \"password\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/user/signup",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.accessToken) {",
+                  "        pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/user/login",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@example.com\",\n    \"oldPassword\": \"password123\",\n    \"newPassword\": \"newPassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/user/change-password",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user",
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/user/me",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/user",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Updated Name\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/user/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/user/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "user",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "USER_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Staff",
+      "item": [
+        {
+          "name": "Create Staff",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John Doe\",\n    \"role\": \"Doctor\",   // Doctor, Consultant, Support Agen\n    \"specialization\": \"General\",\n    \"dailyCapacity\": 10,\n    \"availabilityStatus\": \"AVAILABLE\",  // 'AVAILABLE', 'ON_LEAVE'\n    \"workHours\": {\n        \"start\": \"09:00\",\n        \"end\": \"17:00\"\n    },\n    \"active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/staff",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "staff"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Staff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/staff",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "staff"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Staff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/staff/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "staff",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "69726da54ff262daf89f4704"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Staff",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dailyCapacity\": 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/staff/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "staff",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "STAFF_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Staff",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/staff/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "staff",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "STAFF_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Service",
+      "item": [
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Medical Checkup\",\n    \"duration\": 30,\n    \"requiredSpecialization\": \"Legal\"\n    // \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/service",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "service"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/service",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "service"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Service",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/service/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "service",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "69726e97b4d827b20f636a94"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"duration\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/service/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "service",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "SERVICE_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Service",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/service/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "service",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "SERVICE_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointment",
+      "item": [
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customerName\": \"Alice\",\n    \"customerEmail\": \"alice@example.com\",\n    \"customerPhone\": \"0123456789\",\n    \"serviceId\": \"69726e97b4d827b20f636a94\",\n    // \"staffId\": \"69726e97b4d827b20f636a94\",\n    \"date\": \"2026-01-25T00:00:00.000Z\",\n    \"startTime\": \"10:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/appointment/",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/appointment",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Appointment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/appointment/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "APPOINTMENT_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"COMPLETED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/appointment/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "APPOINTMENT_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Appointment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/appointment/:id",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "APPOINTMENT_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign From Queue",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"staffId\": \"STAFF_ID_HERE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/appointment/assign-queue",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                "assign-queue"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Waiting Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/appointment/queue",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                "queue"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"COMPLETED\" // COMPLETED, NO_SHOW\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/appointment/:id/status",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                ":id",
+                "status"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "APPOINTMENT_ID_HERE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/appointment/stats",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Staff Load Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/appointment/staff-load",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                "staff-load"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Availability",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"staffId\": \"STAFF_ID_HERE\",\n    \"serviceId\": \"SERVICE_ID_HERE\",\n    \"date\": \"2026-01-25T00:00:00.000Z\",\n    \"startTime\": \"10:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/appointment/check-availability",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                "check-availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Bulk Cancel by Staff & Date",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"staffId\": \"STAFF_ID_HERE\",\n    \"date\": \"2026-01-25T00:00:00.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{rootUrl}}/appointment/bulk-cancel",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "appointment",
+                "bulk-cancel"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ActivityLog",
+      "item": [
+        {
+          "name": "Get Recent Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{rootUrl}}/activity-log",
+              "host": [
+                "{{rootUrl}}"
+              ],
+              "path": [
+                "activity-log"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{accessToken}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "Authorization",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "rootUrl",
+      "value": "http://localhost:5000/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ]
+}
