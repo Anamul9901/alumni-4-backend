@@ -32,7 +32,22 @@ const updateTaskValidationSchema = z.object({
   }),
 });
 
+const bulkUpdateTaskValidationSchema = z.object({
+  body: z.object({
+    taskIds: z.array(z.string().min(1, 'Task ID is required!')),
+    status: z.enum(['todo', 'in_progress', 'completed']),
+  }),
+});
+
+const bulkDeleteTaskValidationSchema = z.object({
+  body: z.object({
+    taskIds: z.array(z.string().min(1, 'Task ID is required!')),
+  }),
+});
+
 export const TaskValidation = {
   createTaskValidationSchema,
   updateTaskValidationSchema,
+  bulkUpdateTaskValidationSchema,
+  bulkDeleteTaskValidationSchema,
 };

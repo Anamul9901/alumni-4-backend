@@ -77,6 +77,28 @@ const getDashboardStats = catchAsync(async (req, res) => {
   });
 });
 
+const bulkUpdateTasks = catchAsync(async (req, res) => {
+  const { taskIds, status } = req.body;
+  const result = await TaskService.bulkUpdateTasksInDB(req.user, taskIds, status);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Tasks updated successfully',
+    data: result,
+  });
+});
+
+const bulkDeleteTasks = catchAsync(async (req, res) => {
+  const { taskIds } = req.body;
+  const result = await TaskService.bulkDeleteTasksFromDB(req.user, taskIds);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Tasks deleted successfully',
+    data: result,
+  });
+});
+
 export const TaskController = {
   createTask,
   getAllTasks,
@@ -85,4 +107,6 @@ export const TaskController = {
   deleteTask,
   getStaffLoadSummary,
   getDashboardStats,
+  bulkUpdateTasks,
+  bulkDeleteTasks,
 };

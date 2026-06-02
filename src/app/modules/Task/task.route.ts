@@ -32,6 +32,20 @@ router.get(
   TaskController.getDashboardStats
 );
 
+router.patch(
+  '/bulk-update',
+  auth(USER_ROLE.admin, USER_ROLE.project_manager, USER_ROLE.team_member),
+  validateRequest(TaskValidation.bulkUpdateTaskValidationSchema),
+  TaskController.bulkUpdateTasks
+);
+
+router.delete(
+  '/bulk-delete',
+  auth(USER_ROLE.admin, USER_ROLE.project_manager),
+  validateRequest(TaskValidation.bulkDeleteTaskValidationSchema),
+  TaskController.bulkDeleteTasks
+);
+
 router.get(
   '/:id',
   auth(USER_ROLE.admin, USER_ROLE.project_manager, USER_ROLE.team_member),

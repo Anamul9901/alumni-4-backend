@@ -425,6 +425,28 @@ const getDashboardStats = async (user: JwtPayload) => {
   };
 };
 
+const bulkUpdateTasksInDB = async (
+  user: JwtPayload,
+  taskIds: string[],
+  status: 'todo' | 'in_progress' | 'completed'
+) => {
+  const results = [];
+  for (const id of taskIds) {
+    const result = await updateTaskInDB(id, user, { status });
+    results.push(result);
+  }
+  return results;
+};
+
+const bulkDeleteTasksFromDB = async (user: JwtPayload, taskIds: string[]) => {
+  const results = [];
+  for (const id of taskIds) {
+    const result = await deleteTaskFromDB(id, user);
+    results.push(result);
+  }
+  return results;
+};
+
 export const TaskService = {
   createTaskIntoDB,
   getAllTasksFromDB,
@@ -433,4 +455,6 @@ export const TaskService = {
   deleteTaskFromDB,
   getStaffLoadSummary,
   getDashboardStats,
+  bulkUpdateTasksInDB,
+  bulkDeleteTasksFromDB,
 };
