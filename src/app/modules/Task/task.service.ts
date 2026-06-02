@@ -95,6 +95,12 @@ const getAllTasksFromDB = async (user: JwtPayload, query: Record<string, unknown
     filterQuery.assignedMember = queryObj.assignedMember;
   }
 
+  // Handle custom filter: isPending (not completed tasks)
+  if (queryObj.isPending === 'true') {
+    filterQuery.status = { $ne: 'completed' };
+    delete queryObj.isPending;
+  }
+
   // Handle custom filter: deadlineStatus (upcoming / overdue)
   if (queryObj.deadlineStatus) {
     const today = new Date();
