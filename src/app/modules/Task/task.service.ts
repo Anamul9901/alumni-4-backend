@@ -75,6 +75,9 @@ const getAllTasksFromDB = async (user: JwtPayload, query: Record<string, unknown
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filterQuery: Record<string, any> = { isDeleted: { $ne: true } };
 
+  // Copy query object to prevent direct mutation
+  const queryObj = { ...query };
+
   // If a team_member is querying, we only show tasks from projects they belong to
   if (user.role === 'team_member') {
     const memberProjects = await Project.find({ members: user.userId, isDeleted: false }).select('_id');
@@ -83,20 +86,33 @@ const getAllTasksFromDB = async (user: JwtPayload, query: Record<string, unknown
   }
 
   // If project id is passed explicitly, add it to filterQuery
-  if (query.project) {
-    filterQuery.project = query.project;
+  if (queryObj.project) {
+    filterQuery.project = queryObj.project;
   }
 
   // If assignedMember filter is passed
-  if (query.assignedMember) {
-    filterQuery.assignedMember = query.assignedMember;
+  if (queryObj.assignedMember) {
+    filterQuery.assignedMember = queryObj.assignedMember;
+  }
+
+  // Handle custom filter: deadlineStatus (upcoming / overdue)
+  if (queryObj.deadlineStatus) {
+    const today = new Date();
+    if (queryObj.deadlineStatus === 'overdue') {
+      filterQuery.dueDate = { $lt: today };
+      filterQuery.status = { $ne: 'completed' };
+    } else if (queryObj.deadlineStatus === 'upcoming') {
+      filterQuery.dueDate = { $gte: today };
+      filterQuery.status = { $ne: 'completed' };
+    }
+    delete queryObj.deadlineStatus;
   }
 
   const taskQuery = new QueryBuilder(
     Task.find(filterQuery)
       .populate('project', 'name status deadline')
       .populate('assignedMember', 'name email role'),
-    query
+    queryObj
   )
     .search(['title', 'description'])
     .filter()
