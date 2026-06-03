@@ -16,7 +16,7 @@ const app: Application = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({ origin: ['https://appointx-eta.vercel.app', 'http://localhost:3000'], credentials: true }));
+app.use(cors({ origin: ['https://workspacex-eta.vercel.app', 'http://localhost:3000'], credentials: true }));
 
 // show image in browser
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
@@ -25,7 +25,7 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('AppointX Server is running !');
+  res.send('WorkspaceX Server is running !');
 });
 
 app.use(globalErrorHandler);

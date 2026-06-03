@@ -2,40 +2,40 @@ import { User } from '../modules/User/user.model';
 
 export const seedDatabase = async () => {
   try {
-    const adminExists = await User.findOne({ email: 'admin@appointx.com' });
+    const adminExists = await User.findOne({ email: 'admin@workspacex.com' });
     if (!adminExists) {
       await User.create({
         name: 'Demo Admin',
-        email: 'admin@appointx.com',
+        email: 'admin@workspacex.com',
         password: 'Admin@123',
         role: 'admin',
         isDeleted: false,
       });
-      console.log('Seeded admin@appointx.com');
+      console.log('Seeded admin@workspacex.com');
     }
 
-    const managerExists = await User.findOne({ email: 'manager@appointx.com' });
+    const managerExists = await User.findOne({ email: 'manager@workspacex.com' });
     if (!managerExists) {
       await User.create({
         name: 'Demo Manager',
-        email: 'manager@appointx.com',
+        email: 'manager@workspacex.com',
         password: 'Manager@123',
         role: 'project_manager',
         isDeleted: false,
       });
-      console.log('Seeded manager@appointx.com');
+      console.log('Seeded manager@workspacex.com');
     }
 
-    const memberExists = await User.findOne({ email: 'member@appointx.com' });
+    const memberExists = await User.findOne({ email: 'member@workspacex.com' });
     if (!memberExists) {
       await User.create({
         name: 'Demo Member',
-        email: 'member@appointx.com',
+        email: 'member@workspacex.com',
         password: 'Member@123',
         role: 'team_member',
         isDeleted: false,
       });
-      console.log('Seeded member@appointx.com');
+      console.log('Seeded member@workspacex.com');
     }
 
     // Seed direct login demo user from old login page

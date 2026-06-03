@@ -1,13 +1,13 @@
-# AppointX - Smart Appointment & Workspace Management System (Backend API)
+# WorkspaceX - Smart Appointment & Workspace Management System (Backend API)
 
-AppointX Backend is a robust, production-ready REST API built with Node.js, Express, TypeScript, and MongoDB. It powers smart appointments management, staff workloads, automated queuing, activity logs auditing, and workspace project permissions.
+WorkspaceX Backend is a robust, production-ready REST API built with Node.js, Express, TypeScript, and MongoDB. It powers smart appointments management, staff workloads, automated queuing, activity logs auditing, and workspace project permissions.
 
 ---
 
 ## 🚀 Live Links
 
-- **Backend API URL**: [https://appointx-ten.vercel.app/](https://appointx-ten.vercel.app/)
-- **Frontend App URL**: [https://appointx-eta.vercel.app/](https://appointx-eta.vercel.app/)
+- **Backend API URL**: [https://workspacex-ten.vercel.app/](https://workspacex-ten.vercel.app/)
+- **Frontend App URL**: [https://workspacex-eta.vercel.app/](https://workspacex-eta.vercel.app/)
 
 ---
 
@@ -28,10 +28,10 @@ Create a `.env` file in the root directory to store configuration variables:
 # Server Environment Setup
 NODE_ENV=development
 PORT=5001
-
+ 
 # Database Configuration
 DATABASE_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/database-name
-
+ 
 # Authentication Settings
 BCRYPT_SALT_ROUNDS=12
 JWT_ACCESS_SECRET=your_jwt_access_secret_key
@@ -47,13 +47,13 @@ JWT_REFRESH_EXPIRES_IN=365d
 The database contains seeded user accounts matching these roles:
 
 - **Admin Account**:
-  - Email: `admin@appointx.com`
+  - Email: `admin@workspacex.com`
   - Password: `Admin@123`
 - **Manager Account**:
-  - Email: `manager@appointx.com`
+  - Email: `manager@workspacex.com`
   - Password: `Manager@123`
 - **Team Member Account**:
-  - Email: `member@appointx.com`
+  - Email: `member@workspacex.com`
   - Password: `Member@123`
 
 ---
