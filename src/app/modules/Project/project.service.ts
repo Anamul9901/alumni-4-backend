@@ -5,6 +5,8 @@ import AppError from '../../errors/AppError';
 import { ActivityLogService } from '../ActivityLog/activityLog.service';
 import { TProject } from './project.interface';
 import { Project } from './project.model';
+import { Task } from '../Task/task.model';
+
 
 const createProjectIntoDB = async (user: JwtPayload, payload: TProject) => {
   // Ensure the creator is set
@@ -123,9 +125,12 @@ const deleteProjectFromDB = async (id: string, user: JwtPayload) => {
     throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to delete projects');
   }
 
-  // Soft delete
+  // Soft delete project
   project.isDeleted = true;
   await project.save();
+
+  // Soft delete associated tasks
+  await Task.updateMany({ project: id }, { isDeleted: true });
 
   // Log activity
   await ActivityLogService.logActivity({
