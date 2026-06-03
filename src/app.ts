@@ -32,7 +32,7 @@ if (process.env.VERCEL === '1' || process.env.NODE_ENV === 'production') {
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({ origin: ['https://workspacex-eta.vercel.app', 'http://localhost:3000'], credentials: true }));
+app.use(cors({ origin: ['https://workspacex-ten.vercel.app', 'http://localhost:3000'], credentials: true }));
 
 // Serverless DB connection assurance middleware
 app.use(async (req, res, next) => {
