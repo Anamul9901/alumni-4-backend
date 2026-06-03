@@ -10,18 +10,14 @@ import { Task } from './task.model';
 import { Notification } from '../Notification/notification.model';
 
 const createTaskIntoDB = async (user: JwtPayload, payload: TTask) => {
-  // Validate project exists and user has access
   const project = await Project.findById(payload.project);
   if (!project || project.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, 'Project not found');
   }
 
-  // Only Admin or Project Manager can create tasks
   if (user.role === 'team_member') {
     throw new AppError(httpStatus.FORBIDDEN, 'Only Admins and Project Managers can create tasks');
   }
-
-  // Rule: Prevent duplicate task titles inside the same project
   const duplicate = await Task.findOne({
     project: payload.project,
     title: { $regex: new RegExp(`^${payload.title.trim()}$`, 'i') },
@@ -31,24 +27,22 @@ const createTaskIntoDB = async (user: JwtPayload, payload: TTask) => {
     throw new AppError(httpStatus.BAD_REQUEST, 'This task already exists in the project.');
   }
 
-  // Rule: Prevent setting past dates as deadlines
+  //  Prevent setting past dates as deadlines
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   if (new Date(payload.dueDate) < today) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Please select a valid deadline.');
   }
 
-  // Create Task
   const result = await Task.create(payload);
 
-  // Fetch assignee info for the activity log and notification
   let assigneeName = 'Unassigned';
   if (payload.assignedMember) {
     const assignee = await User.findById(payload.assignedMember);
     if (assignee) {
       assigneeName = assignee.name;
 
-      // Trigger Notification
+      // Notification
       await Notification.create({
         recipient: payload.assignedMember,
         sender: user.userId,
@@ -72,36 +66,28 @@ const createTaskIntoDB = async (user: JwtPayload, payload: TTask) => {
 };
 
 const getAllTasksFromDB = async (user: JwtPayload, query: Record<string, unknown>) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filterQuery: Record<string, any> = { isDeleted: { $ne: true } };
 
-  // Copy query object to prevent direct mutation
   const queryObj = { ...query };
 
-  // If a team_member is querying, we only show tasks from projects they belong to
   if (user.role === 'team_member') {
     const memberProjects = await Project.find({ members: user.userId, isDeleted: false }).select('_id');
     const projectIds = memberProjects.map((p) => p._id);
     filterQuery.project = { $in: projectIds };
   }
 
-  // If project id is passed explicitly, add it to filterQuery
   if (queryObj.project) {
     filterQuery.project = queryObj.project;
   }
-
-  // If assignedMember filter is passed
   if (queryObj.assignedMember) {
     filterQuery.assignedMember = queryObj.assignedMember;
   }
 
-  // Handle custom filter: isPending (not completed tasks)
   if (queryObj.isPending === 'true') {
     filterQuery.status = { $ne: 'completed' };
     delete queryObj.isPending;
   }
 
-  // Handle custom filter: deadlineStatus (upcoming / overdue)
   if (queryObj.deadlineStatus) {
     const today = new Date();
     if (queryObj.deadlineStatus === 'overdue') {
@@ -144,11 +130,9 @@ const getSingleTaskFromDB = async (id: string, user: JwtPayload) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Task not found');
   }
 
-  // Access check: Team member must belong to the project
+
   if (user.role === 'team_member') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const projectMembers = (task.project as any)?.members || [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isMember = projectMembers.some((m: any) => m.toString() === user.userId);
     if (!isMember) {
       throw new AppError(httpStatus.FORBIDDEN, 'You do not have access to this task');
@@ -164,22 +148,17 @@ const updateTaskInDB = async (id: string, user: JwtPayload, payload: Partial<TTa
     throw new AppError(httpStatus.NOT_FOUND, 'Task not found');
   }
 
-  // Permissions Check:
-  // Admin and PM can update anything.
-  // Team Member can only update tasks assigned to them.
   if (user.role === 'team_member') {
     if (!task.assignedMember || task.assignedMember.toString() !== user.userId) {
       throw new AppError(httpStatus.FORBIDDEN, 'Team members can only update tasks assigned to them.');
     }
     
-    // Team member should not be allowed to change assignee or project or due date. Let's strip those!
     delete payload.assignedMember;
     delete payload.project;
     delete payload.dueDate;
     delete payload.title;
   }
 
-  // Rule: Prevent setting past dates as deadlines (for PM/Admin updating dates)
   if (payload.dueDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -188,7 +167,6 @@ const updateTaskInDB = async (id: string, user: JwtPayload, payload: Partial<TTa
     }
   }
 
-  // Rule: Prevent duplicate task titles inside the same project
   if (payload.title && payload.title.trim().toLowerCase() !== task.title.toLowerCase()) {
     const projectTarget = payload.project || task.project._id;
     const duplicate = await Task.findOne({
@@ -202,19 +180,15 @@ const updateTaskInDB = async (id: string, user: JwtPayload, payload: Partial<TTa
     }
   }
 
-  // Rule: Prevent assigning completed tasks / Completed tasks cannot be reassigned
   if (task.status === 'completed' && payload.assignedMember && payload.assignedMember.toString() !== task.assignedMember?.toString()) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Completed tasks cannot be reassigned.');
   }
 
-  // Keep track of change description for activity logs
   let changeDescription = `Task "${task.title}" updated by ${user.email}`;
 
-  // If status is updated to completed
   if (payload.status && payload.status !== task.status) {
     changeDescription = `Task "${task.title}" marked as ${payload.status} by ${user.email}`;
 
-    // Send notifications if someone else completed it, or send to PM/Creator
     if (task.assignedMember && task.assignedMember.toString() !== user.userId) {
       await Notification.create({
         recipient: task.assignedMember,
@@ -226,17 +200,14 @@ const updateTaskInDB = async (id: string, user: JwtPayload, payload: Partial<TTa
     }
   }
 
-  // If task is being reassigned
   if (payload.assignedMember && payload.assignedMember.toString() !== task.assignedMember?.toString()) {
     const newAssignee = await User.findById(payload.assignedMember);
     if (newAssignee) {
       changeDescription = `Task "${task.title}" reassigned to ${newAssignee.name} by ${user.email}`;
 
-      // Trigger Notification to new assignee
       await Notification.create({
         recipient: payload.assignedMember,
         sender: user.userId,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         message: `You have been assigned the task: "${task.title}" in project "${(task.project as any)?.name}"`,
         type: 'task_assigned',
         relatedId: task._id,
@@ -273,7 +244,6 @@ const deleteTaskFromDB = async (id: string, user: JwtPayload) => {
     throw new AppError(httpStatus.NOT_FOUND, 'Task not found');
   }
 
-  // Only Admin or Project Manager can delete tasks
   if (user.role === 'team_member') {
     throw new AppError(httpStatus.FORBIDDEN, 'Only Admins and Project Managers can delete tasks');
   }
@@ -293,9 +263,7 @@ const deleteTaskFromDB = async (id: string, user: JwtPayload) => {
   return task;
 };
 
-// Workload analytics summary
 const getStaffLoadSummary = async () => {
-  // Aggregate tasks group by assignedMember where task is not deleted and status is not completed
   const summary = await Task.aggregate([
     {
       $match: {
@@ -345,12 +313,9 @@ const getStaffLoadSummary = async () => {
 
 // Dashboard KPI stats
 const getDashboardStats = async (user: JwtPayload) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filterQuery: Record<string, any> = { isDeleted: false };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const projectFilterQuery: Record<string, any> = { isDeleted: false };
 
-  // For team member, we only show projects/tasks they belong to
   if (user.role === 'team_member') {
     const memberProjects = await Project.find({ members: user.userId, isDeleted: false }).select('_id');
     const projectIds = memberProjects.map((p) => p._id);
@@ -392,7 +357,6 @@ const getDashboardStats = async (user: JwtPayload) => {
 
     const pendingCount = projectTasksCount - projectTasksCompleted;
     
-    // Build descriptive message (e.g., "5 tasks pending", "80% completed", etc.)
     let summaryText = `${pendingCount} tasks pending`;
     if (proj.status === 'completed') {
       summaryText = '100% completed';

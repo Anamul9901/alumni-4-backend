@@ -25,7 +25,7 @@ const activityLogSchema = new Schema<TActivityLog>(
         }
     },
     {
-        timestamps: false, // We use timestamp field manually or default Date.now, no need for updatedAt
+        timestamps: false,
     }
 );
 

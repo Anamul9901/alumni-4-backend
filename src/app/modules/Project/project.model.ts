@@ -47,7 +47,6 @@ const projectSchema = new Schema<TProject>(
 projectSchema.pre(/^find/, function (next) {
   const filter = (this as any).getFilter();
   if (filter.isDeleted === undefined) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this as any).find({ isDeleted: { $ne: true } });
   }
   next();

@@ -28,7 +28,6 @@ const createProjectIntoDB = async (user: JwtPayload, payload: TProject) => {
 };
 
 const getAllProjectsFromDB = async (user: JwtPayload, query: Record<string, unknown>) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const filterQuery: Record<string, any> = { isDeleted: { $ne: true } };
 
   // Team members can only see projects they are assigned to
@@ -69,7 +68,6 @@ const getSingleProjectFromDB = async (id: string, user: JwtPayload) => {
   // Restrict access for team members who are not part of the project
   if (
     user.role === 'team_member' &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     !project.members.some((m: any) => m._id.toString() === user.userId)
   ) {
     throw new AppError(httpStatus.FORBIDDEN, 'You do not have access to this project');
@@ -125,11 +123,9 @@ const deleteProjectFromDB = async (id: string, user: JwtPayload) => {
     throw new AppError(httpStatus.FORBIDDEN, 'You do not have permission to delete projects');
   }
 
-  // Soft delete project
   project.isDeleted = true;
   await project.save();
 
-  // Soft delete associated tasks
   await Task.updateMany({ project: id }, { isDeleted: true });
 
   // Log activity
