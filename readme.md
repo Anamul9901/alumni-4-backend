@@ -6,8 +6,8 @@ WorkspaceX Backend is a robust, production-ready REST API built with Node.js, Ex
 
 ## 🚀 Live Links
 
-- **Backend API URL**: [https://workspacex-ten.vercel.app/](https://workspacex-ten.vercel.app/)
-- **Frontend App URL**: [https://workspacex-eta.vercel.app/](https://workspacex-eta.vercel.app/)
+- **Backend API URL**: [https://workspacex-server.vercel.app/](https://workspacex-server.vercel.app/)
+- **Frontend App URL**: [https://workspacex-ten.vercel.app/](https://workspacex-ten.vercel.app/)
 
 ---
 
