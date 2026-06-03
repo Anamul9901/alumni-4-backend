@@ -48,10 +48,10 @@ const getRecentLogs = async (user: JwtPayload, query: Record<string, unknown>) =
     let baseQuery: any = deletionFilter;
 
     if (user.role === 'team_member') {
-        const memberProjects = await Project.find({ members: user.userId }).select('_id');
+        const memberProjects = await Project.find({ members: user.userId, isDeleted: { $in: [true, false] } }).select('_id');
         const projectIds = memberProjects.map(p => p._id);
 
-        const tasks = await Task.find({ project: { $in: projectIds } }).select('_id');
+        const tasks = await Task.find({ project: { $in: projectIds }, isDeleted: { $in: [true, false] } }).select('_id');
         const taskIds = tasks.map(t => t._id);
 
         baseQuery = {

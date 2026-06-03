@@ -60,8 +60,11 @@ taskSchema.index(
 
 // Query middleware to exclude soft-deleted tasks by default
 taskSchema.pre(/^find/, function (next) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (this as any).find({ isDeleted: { $ne: true } });
+  const filter = (this as any).getFilter();
+  if (filter.isDeleted === undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this as any).find({ isDeleted: { $ne: true } });
+  }
   next();
 });
 
