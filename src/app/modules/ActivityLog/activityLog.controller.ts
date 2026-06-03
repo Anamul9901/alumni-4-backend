@@ -4,7 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { ActivityLogService } from './activityLog.service';
 
 const getRecentLogs = catchAsync(async (req, res) => {
-    const result = await ActivityLogService.getRecentLogs(req.query);
+    const result = await ActivityLogService.getRecentLogs(req.user, req.query);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,

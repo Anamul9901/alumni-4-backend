@@ -1,3 +1,4 @@
+import { JwtPayload } from 'jsonwebtoken';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { TActivityLog } from './activityLog.interface';
 import { ActivityLog } from './activityLog.model';
@@ -9,7 +10,7 @@ const logActivity = async (payload: TActivityLog) => {
     return result;
 };
 
-const getRecentLogs = async (query: Record<string, unknown>) => {
+const getRecentLogs = async (user: JwtPayload, query: Record<string, unknown>) => {
     const queryObj = { ...query };
     if (!queryObj.sort) {
         queryObj.sort = '-timestamp';
@@ -31,7 +32,7 @@ const getRecentLogs = async (query: Record<string, unknown>) => {
         ...deletedTasks.map(t => t._id.toString())
     ];
 
-    const baseQuery = {
+    const deletionFilter = {
         $or: [
             { action: { $in: ['PROJECT_DELETE', 'TASK_DELETE'] } },
             {
@@ -43,6 +44,28 @@ const getRecentLogs = async (query: Record<string, unknown>) => {
             }
         ]
     };
+
+    let baseQuery: any = deletionFilter;
+
+    if (user.role === 'team_member') {
+        const memberProjects = await Project.find({ members: user.userId }).select('_id');
+        const projectIds = memberProjects.map(p => p._id);
+
+        const tasks = await Task.find({ project: { $in: projectIds } }).select('_id');
+        const taskIds = tasks.map(t => t._id);
+
+        baseQuery = {
+            $and: [
+                deletionFilter,
+                {
+                    $or: [
+                        { 'metadata.projectId': { $in: projectIds } },
+                        { 'metadata.taskId': { $in: taskIds } }
+                    ]
+                }
+            ]
+        };
+    }
 
     const logQuery = new QueryBuilder(
         ActivityLog.find(baseQuery).populate('createdBy', 'name email'),
